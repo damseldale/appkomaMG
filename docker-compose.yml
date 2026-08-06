@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Relational DB (Users, Billing, Projects metadata)
+  postgres:
+    image: postgres:15-alpine
+    container_name: animaker_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: animaker_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # NoSQL DB (Penyimpanan state animasi/JSON yang kompleks)
+  mongodb:
+    image: mongo:6.0
+    container_name: animaker_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  # In-memory Cache & Rate Limiting
+  redis:
+    image: redis:7-alpine
+    container_name: animaker_redis
+    ports:
+      - "6379:6379"
+
+  # Message Queue untuk Cloud Rendering Engine (FFmpeg)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: animaker_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # Port komunikasi microservice
+      - "15672:15672" # Port UI Dashboard RabbitMQ
+
+volumes:
+  postgres_data:
+  mongodb_data:
