@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Favicon (Pastikan nanti Anda menaruh file favicon.svg di folder assets) -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    
+    <!-- Mencegah user melakukan zoom-in/zoom-out sembarangan di HP/Tablet agar canvas tidak rusak -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1A1A2E" />
+    
+    <!-- Preconnect ke Google Fonts agar loading font di dalam Canvas lebih cepat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <title>Studio Editor - Animaker Clone</title>
+    
+    <style>
+      /* 
+        Global Reset. 
+        Sangat penting untuk aplikasi Web Editor agar tidak ada margin tersisa 
+        dan mencegah scrollbar browser bawaan muncul.
+      */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden; /* Scroll hanya akan diatur di dalam komponen React, bukan body */
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: #1A1A2E; /* Warna background gelap ala software video editing (Premiere/Animaker) */
+        color: #FFFFFF;
+      }
+
+      /* Root container tempat React akan dirender */
+      #root {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Animasi loading sederhana sebelum React selesai di-load */
+      #initial-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+      
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: #FF5A5F; /* Warna aksen utama */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Elemen yang akan ditimpa (di-replace) oleh React setelah selesai loading -->
+    <div id="root">
+      <div id="initial-loader">
+        <div class="spinner"></div>
+        <p>Loading Workspace...</p>
+      </div>
+    </div>
+    
+    <!-- Entry point module untuk Vite & React -->
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
