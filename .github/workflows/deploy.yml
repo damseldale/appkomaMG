@@ -1,0 +1,58 @@
+name: CD Pipeline (Production Deploy)
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: animaker-clone
+  KUBECONFIG_SECRET: ${{ secrets.KUBE_CONFIG_DATA }}
+
+jobs:
+  deploy-to-k8s:
+    name: Build Docker & Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: [] # Di dunia nyata, ini akan menunggu CI selesai (needs: [ci-job])
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Images (Render Engine Example)
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build Microservice Render Engine
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:render-$IMAGE_TAG -f apps/service-render-engine/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:render-$IMAGE_TAG
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Set Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > ~/.kube/config
+
+      - name: Deploy to Kubernetes
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Update image di deployment K8s
+          kubectl set image deployment/service-render service-render=$ECR_REGISTRY/$ECR_REPOSITORY:render-$IMAGE_TAG
+          kubectl rollout status deployment/service-render
