@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"],
-      "env": ["NODE_ENV", "NEXT_PUBLIC_API_URL"]
+      "env": ["NODE_ENV", "VITE_API_URL"]
     },
     "test": {
       "dependsOn": ["build"],
