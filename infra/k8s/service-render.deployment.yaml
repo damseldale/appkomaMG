@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-render
+  namespace: animaker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-render
+  template:
+    metadata:
+      labels:
+        app: service-render
+    spec:
+      containers:
+      - name: service-render
+        image: animaker/service-render:latest
+        ports:
+        - containerPort: 4005
+        env:
+        - name: PORT
+          value: "4005"
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-render
+  namespace: animaker
+spec:
+  selector:
+    app: service-render
+  ports:
+  - port: 4005
+    targetPort: 4005
+  type: ClusterIP
