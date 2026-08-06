@@ -11,19 +11,23 @@ export interface ObjectRendererProps<
   object: TObject;
 }
 
-type RendererComponent = ComponentType<ObjectRendererProps>;
+export type ObjectRendererComponent<
+  TObject extends SceneObject = SceneObject,
+> = ComponentType<ObjectRendererProps<TObject>>;
 
 class RendererRegistry {
-  private renderers = new Map<
-    ObjectType,
-    RendererComponent
-  >();
+  private renderers =
+    new Map<ObjectType, ObjectRendererComponent>();
 
   register(
     type: ObjectType,
-    renderer: RendererComponent
+    renderer: ObjectRendererComponent
   ) {
     this.renderers.set(type, renderer);
+  }
+
+  unregister(type: ObjectType) {
+    this.renderers.delete(type);
   }
 
   get(type: ObjectType) {
